@@ -32,6 +32,18 @@
             {{ $errors->first('is_available') }}
         @endif
         <br>
+        <br>
+        Pracownicy:
+        <br>
+        @foreach ($employeeList as $id => $name)
+            <input type="checkbox" name="employee_list[{{ $id }}]" id="employee_list-{{ $id }}" value='1' @if(old('employee_list.' . $id) === '1') checked @endif>
+            <label for="employee_list-{{ $id }}"> {{ $name }} </label>
+            @if ($errors->has('employee_list.' . $id))
+                {{ $errors->first('employee_list.' . $id) }}
+            @endif
+            <br>
+        @endforeach
+        <br>
 
         <input type="submit" value="Zapisz">
     </form>

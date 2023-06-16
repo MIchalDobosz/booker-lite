@@ -2,10 +2,12 @@
 
 namespace App\Http\Requests;
 
-use App\Rules\SlotAvailable;
+use App\Models\Service;
+use App\Rules\SlotDateAvailable;
+use App\Rules\SlotEmployeeAvailable;
+use App\Rules\SlotTimeAvailable;
 use App\Services\ReservationService;
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Validation\Rule;
 
 class ReservationRequest extends FormRequest
 {
@@ -16,14 +18,17 @@ class ReservationRequest extends FormRequest
 
     public function rules()
     {
-        $availableSlots = (new ReservationService())->getAvailableSpots();
+        $service = Service::with('employees')->findOrFail($this->route('serviceId'));
+        $employee = $service->employees->firstWhere('id', $this->input('employee_id'));
+        $availableSlots = (new ReservationService($service, $employee))->getAvailableSpots();
 
         return [
             'first_name' => 'required|max:255',
             'last_name' => 'required|max:255',
             'email' => 'required|email|max:255',
-            'date' => ['required', Rule::in(array_keys($availableSlots))],
-            'time' => ['required', new SlotAvailable($availableSlots)]
+            'date' => ['required', new SlotDateAvailable($availableSlots)],
+            'time' => ['required', new SlotTimeAvailable($availableSlots)],
+            'employee_id' => ['required', new SlotEmployeeAvailable($availableSlots)]
         ];
     }
 
@@ -32,7 +37,8 @@ class ReservationRequest extends FormRequest
         return [
             'first_name' => 'imię',
             'last_name' => 'nazwisko',
-            'starts_at' => 'data'
+            'date' => 'data',
+            'time' => 'czas'
         ];
     }
 }

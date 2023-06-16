@@ -4,7 +4,7 @@ namespace App\Rules;
 
 use Illuminate\Contracts\Validation\Rule;
 
-class SlotAvailable implements Rule
+class SlotTimeAvailable implements Rule
 {
     private array $availableSlots;
 
@@ -29,8 +29,7 @@ class SlotAvailable implements Rule
     {
         $date = request('date');
 
-        return isset($this->availableSlots[$date])
-            && in_array($value, $this->availableSlots[$date]);
+        return isset($this->availableSlots[$date][$value]);
     }
 
     /**

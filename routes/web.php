@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\FrontController;
 use App\Http\Controllers\ServiceController;
 use Illuminate\Support\Facades\Route;
@@ -26,12 +27,23 @@ Route::prefix('dashboard')->group(function ()
         Route::get('/', 'index');
         Route::get('create', 'create');
         Route::post('create', 'store');
-        Route::get('edit/{service}', 'edit');
-        Route::post('edit/{service}', 'update');
-        Route::post('delete/{service}', 'destroy');
-        Route::get('{service}', 'show');
+        Route::get('edit/{id}', 'edit');
+        Route::post('edit/{id}', 'update');
+        Route::post('delete/{id}', 'destroy');
+        Route::get('{id}', 'show');
     });
 
+    // employees
+    Route::controller(EmployeeController::class)->prefix('employees')->group(function ()
+    {
+        Route::get('/', 'index');
+        Route::get('create', 'create');
+        Route::post('create', 'store');
+        Route::get('edit/{id}', 'edit');
+        Route::post('edit/{id}', 'update');
+        Route::post('delete/{id}', 'destroy');
+        Route::get('{id}', 'show');
+    });
 });
 
 // front
@@ -39,5 +51,6 @@ Route::controller(FrontController::class)->group(function ()
 {
     Route::get('/', 'index')->name('reservation-index');
     Route::get('{serviceId}', 'form')->name('reservation-form');
+    Route::get('{serviceId}/{employeeId}', 'form')->name('reservation-form-employee');
     Route::post('{serviceId}', 'store')->name('reservation-store');
 });

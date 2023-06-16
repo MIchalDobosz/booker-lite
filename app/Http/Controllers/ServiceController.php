@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\ServiceRequest;
+use App\Models\Employee;
 use App\Models\Service;
 use App\Services\ServiceService;
 use Illuminate\Http\RedirectResponse;
@@ -20,27 +21,33 @@ class ServiceController extends Controller
     public function create(ServiceService $serviceService) : View
     {
         $durationOptions = $serviceService->getDurationOptions();
+        $employeeList = Employee::getList();
 
-        return view('dashboard.services.create', compact('durationOptions'));
+        return view('dashboard.services.create', compact('durationOptions', 'employeeList'));
     }
 
     public function store(ServiceRequest $request) : RedirectResponse
     {
-        Service::create($request->validated());
+        $service = Service::create($request->validated());
+        $service->employees()->sync(array_keys($request->input('employee_list', [])));
 
         return redirect()->refresh()->with('message', 'Nowa usługa została utworzona.');
     }
 
-    public function edit(ServiceService $serviceService, Service $service) : View
+    public function edit(ServiceService $serviceService, int $id) : View
     {
+        $service = Service::with('employees')->findOrFail($id);
         $durationOptions = $serviceService->getDurationOptions();
+        $employeeList = Employee::getList();
 
-        return view('dashboard.services.edit', compact('service', 'durationOptions'));
+        return view('dashboard.services.edit', compact('service', 'durationOptions', 'employeeList'));
     }
 
-    public function update(ServiceRequest $request, Service $service) : RedirectResponse
+    public function update(ServiceRequest $request, int $id) : RedirectResponse
     {
+        $service = Service::with('employees')->findOrFail($id);
         $service->update($request->validated());
+        $service->employees()->sync(array_keys($request->input('employee_list', [])));
 
         return redirect()->refresh()->with('message', 'Usługa została zaktualizowana..');
     }
